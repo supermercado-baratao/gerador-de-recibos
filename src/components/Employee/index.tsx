@@ -1,5 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormControl, TextField } from '@mui/material'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { InputMask, Layout, TAlertProps } from '@/components'
@@ -19,7 +20,10 @@ export const Employee = ({ setStep }: TEmployeeProps) => {
       rg: '',
       cpf: ''
     }
+
   const defaultValues = getDefaultValues()
+
+  const [rg, setRg] = useState(defaultValues.rg)
 
   const {
     formState: { errors },
@@ -52,11 +56,13 @@ export const Employee = ({ setStep }: TEmployeeProps) => {
         />
         <InputMask
           label="RG"
-          format="##.###.###-##"
+          format={rg.length >= 11 ? '###.###.###-##' : '##.###.###-##'}
           error={!!errors.rg}
           helperText={errors.rg?.message}
-          defaultValue={defaultValues.rg}
-          {...register('rg')}
+          value={rg}
+          {...register('rg', {
+            onChange: (e) => setRg(e.target.value)
+          })}
         />
         <InputMask
           label="CPF"
