@@ -17,6 +17,6 @@ Aplicação para gerar recibos simplificados de salário, férias e décimo terc
 ```sh
 git clone https://github.com/diasjoaovitor/gerador-de-recibos
 cd gerador-de-recibos
-npm i
-npm run dev
+pnpm install
+pnpm dev
 ```
