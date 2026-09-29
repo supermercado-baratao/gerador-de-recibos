@@ -1,15 +1,17 @@
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+RUN npm install -g pnpm@11
 
-RUN npm install
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN npm run build
+RUN pnpm build
 
 EXPOSE 3002
 
-CMD ["npm", "run", "preview"]
+CMD ["pnpm", "preview"]

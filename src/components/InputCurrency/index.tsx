@@ -7,6 +7,7 @@ import {
   OutlinedInput,
   OutlinedInputProps
 } from '@mui/material'
+import { useId } from 'react'
 import { NumericFormat } from 'react-number-format'
 
 export type TInputCurrencyProps = Omit<
@@ -19,12 +20,15 @@ export type TInputCurrencyProps = Omit<
 
 export const InputCurrency = (props: TInputCurrencyProps) => {
   const { value, isLocked, handleLockClick, ...rest } = props
+  const generatedId = useId()
+  const id = rest.id ?? generatedId
 
   return (
     <FormControl fullWidth className="InputCurrency">
-      <InputLabel htmlFor={rest.id || rest.name}>{rest.label}</InputLabel>
+      <InputLabel htmlFor={id}>{rest.label}</InputLabel>
       <NumericFormat
         {...rest}
+        id={id}
         value={Number(value) || 0}
         customInput={OutlinedInput}
         prefix="R$ "
@@ -35,7 +39,11 @@ export const InputCurrency = (props: TInputCurrencyProps) => {
         endAdornment={
           isLocked !== undefined && (
             <InputAdornment position="end">
-              <IconButton onClick={handleLockClick} edge="end">
+              <IconButton
+                onClick={handleLockClick}
+                edge="end"
+                aria-label={isLocked ? 'Destravar valor' : 'Travar valor'}
+              >
                 {!isLocked ? <LockOpen /> : <Lock />}
               </IconButton>
             </InputAdornment>

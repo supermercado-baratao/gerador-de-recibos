@@ -1,31 +1,21 @@
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { CssBaseline, ThemeProvider } from '@mui/material'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { Company, Employee, Receipt } from '@/components'
+import { AppProvider, AuthProvider } from './providers'
+import { Router } from './Router'
+import { theme } from './theme'
 
-import { getSalaries } from './services'
-
-export const App = () => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['getSalaries'],
-    queryFn: getSalaries
-  })
-
-  const [step, setStep] = useState(0)
-
-  if (step === 0) return <Company setStep={setStep} />
-  if (step === 1) return <Employee setStep={setStep} />
-  if (step === 2)
-    return (
-      <Receipt
-        salaries={data}
-        isLoading={isLoading}
-        isError={isError}
-        setStep={setStep}
-      />
-    )
-
-  return null
-}
+const App = ({ queryClient }: { queryClient: QueryClient }) => (
+  <ThemeProvider theme={theme}>
+    <CssBaseline />
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppProvider>
+          <Router />
+        </AppProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
+)
 
 export default App

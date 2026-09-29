@@ -1,11 +1,12 @@
 import { Content } from 'pdfmake/interfaces'
 
-import { TCompany, TEmployee } from '@/types'
+import type { TCompany, TEmployee } from '@/models'
+import type { TCreateData } from '@/types'
 
 export type TDocHeader = {
   title: string
-  company: TCompany
-  employee: TEmployee
+  company: TCreateData<TCompany>
+  employee: TCreateData<TEmployee>
 }
 
 export const docHeader = (data: TDocHeader): Content[] => [

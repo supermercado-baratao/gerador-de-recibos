@@ -1,6 +1,6 @@
-/// <reference types="vitest" />
+/// <reference types="vitest/config" />
 
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import path from 'path'
 import { defineConfig } from 'vite'
 
@@ -9,11 +9,13 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts']
+    setupFiles: ['./vitest.setup.ts'],
+    include: ['src/tests/vitest/**/*.spec.{ts,tsx}'],
+    testTimeout: 30000
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src')
+      '@': path.resolve(import.meta.dirname, 'src')
     }
   },
   preview: {

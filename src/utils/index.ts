@@ -1,2 +1,2 @@
+export * from './compare'
 export * from './formatters'
-export * from './storage'

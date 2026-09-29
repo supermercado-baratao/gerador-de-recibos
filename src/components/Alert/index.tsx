@@ -6,43 +6,28 @@ import {
   Snackbar
 } from '@mui/material'
 
-export type TAlertAttributes = {
-  severity: 'error' | 'info' | 'success' | 'warning'
-  title: string
-  description?: string
-  autoHideDuration?: number
-}
+import { useAlertStore } from '@/stores'
 
-export type TAlertProps = {
-  open: boolean
-  handleClose: () => void
-} & TAlertAttributes
+export const Alert = () => {
+  const { params, clear } = useAlertStore()
 
-export const Alert = ({
-  open,
-  severity,
-  title,
-  description,
-  autoHideDuration,
-  handleClose
-}: TAlertProps) => {
   return (
     <Snackbar
-      open={open}
+      open={!!params}
       anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-      autoHideDuration={autoHideDuration || 4000}
-      onClose={handleClose}
+      autoHideDuration={params?.autoHideDuration || 4000}
+      onClose={clear}
     >
       <MUIAlert
-        severity={severity}
+        severity={params?.severity}
         action={
-          <IconButton size="small" onClick={handleClose}>
+          <IconButton size="small" onClick={clear}>
             <Close fontSize="inherit" />
           </IconButton>
         }
       >
-        <AlertTitle>{title}</AlertTitle>
-        {description}
+        <AlertTitle>{params?.title}</AlertTitle>
+        {params?.description}
       </MUIAlert>
     </Snackbar>
   )

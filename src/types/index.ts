@@ -1,5 +1,4 @@
-export * from './company'
-export * from './employee'
+export * from './generics'
 export * from './proportional-thirteenth'
 export * from './proportional-vacation'
 export * from './salary'

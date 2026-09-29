@@ -15,9 +15,7 @@ export const formatCurrencyToNumber = (value: string) => {
 }
 
 export const formatToExtensive = (value: number) => {
-  const sentence = extenso(String(value.toFixed(2)).replace('.', ','), {
-    mode: 'currency'
-  })
+  const sentence = extenso(value.toFixed(2), { mode: 'currency' })
   return sentence.slice(0, 3) === 'mil' ? `um ${sentence}` : sentence
 }
 

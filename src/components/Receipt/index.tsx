@@ -1,21 +1,17 @@
-import { FormControl, SelectChangeEvent } from '@mui/material'
+// TODO: os valores derivados (período, 1/3, valor líquido) são recalculados
+// em cadeia por efeitos; mover esses cálculos para os handlers de mudança.
+/* eslint-disable react-hooks/set-state-in-effect */
+import { FormControl, InputLabel, SelectChangeEvent } from '@mui/material'
 import { Dayjs } from 'dayjs'
-import * as pdfMake from 'pdfmake/build/pdfmake'
-import pdfFonts from 'pdfmake/build/vfs_fonts'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { ValidationError } from 'yup'
 
-import { Layout, Select } from '@/components'
-import { useAlert } from '@/hooks'
-import {
-  proportionalThirteenthPdf,
-  proportionalVacationPdf,
-  salaryPdf,
-  thirteenthSalaryPdf,
-  vacationPdf
-} from '@/pdf'
-import { TCompany, TEmployee, TSalary } from '@/types'
-import { formatCurrencyToNumber, getStorage } from '@/utils'
+import { Loader, Select, StepLayout } from '@/components'
+import type { TReceiptData, TReceiptType } from '@/models'
+import { openReceiptPdf } from '@/pdf'
+import { useAlertStore, useAppStore } from '@/stores'
+import { TSalary } from '@/types'
+import { formatCurrencyToNumber, omitMetadata } from '@/utils'
 
 import {
   currentDate,
@@ -57,24 +53,18 @@ export const Receipt = ({
   salaries,
   setStep
 }: TReceiptProps) => {
-  ;(pdfMake as any).vfs = pdfFonts
-
-  const getStorageData = () => {
-    const company = getStorage('company') as TCompany | null
-    const employee = getStorage('employee') as TEmployee | null
-    if (company && employee) {
-      return { company, employee }
-    }
-    return null
-  }
-
-  const storageData = getStorageData()
+  const company = useAppStore((state) => state.company)
+  const employee = useAppStore(
+    (state) => state.employees.find(({ id }) => id === state.employeeId) ?? null
+  )
+  const createReceipt = useAppStore((state) => state.createReceipt)
+  const { alert } = useAlertStore()
 
   const [option, setOption] = useState(0)
   const [date, setDate] = useState(currentDate)
   const [endDate, setEndDate] = useState(getEndDate(currentDate))
   const [period, setPeriod] = useState(getPeriod(date, endDate))
-  const [salary, setSalary] = useState(salaries ? salaries[0].salary : 0)
+  const [salary, setSalary] = useState(salaries?.[0]?.salary ?? 0)
   const [oneThird, setOneThird] = useState(getOneThird(salary))
   const [proportionalOneThird, setProportionalOneThird] = useState(
     getProportionalOneThird(salary, 1)
@@ -86,8 +76,6 @@ export const Receipt = ({
     getProportionalNetValue({ salary, months: 1 })
   )
   const [isLocked, setIsLocked] = useState(false)
-
-  const { alertProps, handleAlertOpen } = useAlert()
 
   const numberOfMonths = getNumberOfMonths(date, endDate)
   const updatedNetValue = getNetValue({
@@ -132,12 +120,12 @@ export const Receipt = ({
 
   useEffect(() => {
     if (isError) {
-      handleAlertOpen({
+      alert({
         severity: 'error',
         title: 'Ocorreu um erro ao carregar os dados'
       })
     }
-  }, [isError, handleAlertOpen])
+  }, [isError, alert])
 
   const handleOptionChange = (e: SelectChangeEvent<unknown>) => {
     setOption(Number(e.target.value))
@@ -183,12 +171,18 @@ export const Receipt = ({
     setIsLocked(!isLocked)
   }
 
-  const components = [
+  const components: {
+    type: TReceiptType
+    title: string
+    schema: { validate: (data: TReceiptData) => Promise<unknown> }
+    data: TReceiptData
+    component: React.ReactNode
+  }[] = [
     {
+      type: 'salary',
       schema: salaryOrThirteenthSchema,
       data: { salary, date },
       title: 'Recibo de Salário',
-      fn: salaryPdf,
       component: (
         <SalaryOrThirteenth
           date={date}
@@ -201,10 +195,10 @@ export const Receipt = ({
       )
     },
     {
+      type: 'vacation',
       schema: vacationSchema,
       data: { date, endDate, period, salary, oneThird, netValue },
       title: 'Recibo de Férias',
-      fn: vacationPdf,
       component: (
         <Vacation
           date={date}
@@ -225,6 +219,7 @@ export const Receipt = ({
       )
     },
     {
+      type: 'proportional-vacation',
       schema: proportionalVacationSchema,
       data: {
         date,
@@ -235,7 +230,6 @@ export const Receipt = ({
         proportionalNetValue: updatedProportionalVacationNetValue
       },
       title: 'Recibo de Férias Proporcionais',
-      fn: proportionalVacationPdf,
       component: (
         <ProportionalVacation
           date={date}
@@ -256,10 +250,10 @@ export const Receipt = ({
       )
     },
     {
+      type: 'thirteenth-salary',
       schema: salaryOrThirteenthSchema,
       data: { salary, date },
       title: 'Recibo de Décimo Terceiro',
-      fn: thirteenthSalaryPdf,
       component: (
         <SalaryOrThirteenth
           date={date}
@@ -272,10 +266,10 @@ export const Receipt = ({
       )
     },
     {
+      type: 'proportional-thirteenth',
       schema: proportionalThirteenthSchema,
       data: { date, endDate, period, salary, proportionalNetValue },
       title: 'Recibo de Décimo Terceiro Proporcional',
-      fn: proportionalThirteenthPdf,
       component: (
         <ProportionalThirteenth
           date={date}
@@ -297,23 +291,41 @@ export const Receipt = ({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!storageData) {
-      handleAlertOpen({
+    if (!company) {
+      alert({
         severity: 'error',
-        title: 'Dados da empresa e do funcionário não encontrados',
-        description: 'Por favor, atualize a página e tente novamente'
+        title: 'Dados da empresa não encontrados',
+        description: 'Preencha e salve os dados da empresa na página Empresa'
       })
       return
     }
-    const { schema, title, data, fn } = components[option]
+    if (!employee) {
+      alert({
+        severity: 'error',
+        title: 'Nenhum funcionário selecionado',
+        description: 'Selecione ou cadastre um funcionário'
+      })
+      return
+    }
+    const { type, title, schema, data } = components[option]
     schema
       .validate(data)
       .then(() => {
-        const pdf = fn({ header: { ...storageData, title }, main: data as any })
-        pdfMake.createPdf(pdf).open()
+        const receipt = {
+          employeeId: employee.id,
+          type,
+          title,
+          company: omitMetadata(company),
+          employee: omitMetadata(employee),
+          data
+        }
+        createReceipt(receipt)
+        // Abre o PDF de forma síncrona após o clique (sem aguardar o banco)
+        // para que o navegador não bloqueie a nova janela.
+        openReceiptPdf(receipt)
       })
       .catch((error: ValidationError) => {
-        handleAlertOpen({
+        alert({
           severity: 'error',
           title: 'Erro ao gerar o recibo',
           description: error.message
@@ -322,15 +334,12 @@ export const Receipt = ({
   }
 
   return (
-    <Layout
-      isLoading={isLoading}
-      activeStep={2}
-      alertProps={alertProps}
-      handleSubmit={handleSubmit}
-      setStep={setStep}
-    >
+    <StepLayout activeStep={1} handleSubmit={handleSubmit} setStep={setStep}>
       <FormControl fullWidth>
+        <InputLabel id="receipt-type-label">Tipo de recibo</InputLabel>
         <Select
+          labelId="receipt-type-label"
+          label="Tipo de recibo"
           items={selectItems}
           value={option}
           onChange={handleOptionChange}
@@ -338,6 +347,7 @@ export const Receipt = ({
         />
       </FormControl>
       {components[option]?.component || null}
-    </Layout>
+      <Loader open={isLoading} />
+    </StepLayout>
   )
 }

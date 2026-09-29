@@ -7,14 +7,25 @@ import {
   LocalizationProvider
 } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 
 dayjs.locale('pt-br')
 
-export const InputDate = (props: DatePickerProps<any>) => (
+type TInputDateProps = Omit<DatePickerProps, 'value' | 'onChange'> & {
+  value: string
+  onChange: (value: Dayjs) => void
+}
+
+export const InputDate = ({ value, onChange, ...rest }: TInputDateProps) => (
   <FormControl fullWidth>
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
-      <DatePicker {...props} value={dayjs(props.value)} />
+      <DatePicker
+        {...rest}
+        value={dayjs(value)}
+        onChange={(date) => {
+          if (date?.isValid()) onChange(date)
+        }}
+      />
     </LocalizationProvider>
   </FormControl>
 )
