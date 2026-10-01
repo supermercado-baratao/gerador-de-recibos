@@ -30,6 +30,7 @@ type TVacationOptionProps = {
 type TProportionalVacationOptionProps = {
   handleEndDateChange(e: Dayjs): void
   handlePeriodChange(e: ChangeEvent<HTMLInputElement>): void
+  handleProportionalValueChange(e: ChangeEvent<HTMLInputElement>): void
   handleProportionalOneThirdChange(e: ChangeEvent<HTMLInputElement>): void
   handleProportionalNetValueChange(e: ChangeEvent<HTMLInputElement>): void
 } & TBasicOptionProps &
@@ -112,6 +113,7 @@ export const ProportionalVacation = ({
   endDate,
   period,
   salary,
+  proportionalValue,
   proportionalOneThird,
   proportionalNetValue,
   isLocked,
@@ -119,6 +121,7 @@ export const ProportionalVacation = ({
   handleEndDateChange,
   handlePeriodChange,
   handleSalaryChange,
+  handleProportionalValueChange,
   handleProportionalOneThirdChange,
   handleProportionalNetValueChange,
   handleLockClick
@@ -138,6 +141,11 @@ export const ProportionalVacation = ({
       isLocked={isLocked}
       handleLockClick={handleLockClick}
       onChange={handleSalaryChange}
+    />
+    <InputCurrency
+      label="Valor Proporcional ao Período"
+      value={proportionalValue}
+      onChange={handleProportionalValueChange}
     />
     <InputCurrency
       label="Terço de Férias Proporcional"

@@ -19,6 +19,7 @@ export const proportionalVacationPdf = (
       salary,
       proportionalOneThird,
       proportionalNetValue,
+      proportionalValue = proportionalNetValue - proportionalOneThird,
       date,
       endDate,
       period
@@ -45,10 +46,10 @@ export const proportionalVacationPdf = (
               {
                 text: [
                   {
-                    text: 'Terço de Férias Proporcional: ',
+                    text: 'Valor Proporcional ao Período: ',
                     style: 'label'
                   },
-                  formatCurrency(proportionalOneThird)
+                  formatCurrency(proportionalValue)
                 ],
                 border: [true, false, true, true]
               }
@@ -64,13 +65,32 @@ export const proportionalVacationPdf = (
               {
                 text: [
                   {
+                    text: 'Terço de Férias Proporcional: ',
+                    style: 'label'
+                  },
+                  formatCurrency(proportionalOneThird)
+                ],
+                border: [true, false, true, true]
+              },
+              {
+                text: [
+                  {
                     text: 'Valor Líquido: ',
                     style: 'label'
                   },
                   formatCurrency(proportionalNetValue)
                 ],
                 border: [true, false, true, true]
-              },
+              }
+            ]
+          ]
+        }
+      },
+      {
+        table: {
+          widths: ['*'],
+          body: [
+            [
               {
                 text: [
                   {

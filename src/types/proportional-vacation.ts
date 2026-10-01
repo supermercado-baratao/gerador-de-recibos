@@ -3,6 +3,7 @@ export type TProportionalVacationReceipt = {
   endDate: string
   period: string
   salary: number
+  proportionalValue: number
   proportionalOneThird: number
   proportionalNetValue: number
 }

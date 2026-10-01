@@ -167,6 +167,14 @@ export const Receipt = ({
     setProportionalNetValue(formatCurrencyToNumber(e.target.value))
   }
 
+  const handleProportionalVacationNetValueChange = (
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    setProportionalNetValue(
+      formatCurrencyToNumber(e.target.value) - proportionalOneThird
+    )
+  }
+
   const handleLockClick = () => {
     setIsLocked(!isLocked)
   }
@@ -226,6 +234,7 @@ export const Receipt = ({
         endDate,
         period,
         salary,
+        proportionalValue: proportionalNetValue,
         proportionalOneThird,
         proportionalNetValue: updatedProportionalVacationNetValue
       },
@@ -236,6 +245,7 @@ export const Receipt = ({
           endDate={endDate}
           period={period}
           salary={salary}
+          proportionalValue={proportionalNetValue}
           proportionalOneThird={proportionalOneThird}
           proportionalNetValue={updatedProportionalVacationNetValue}
           isLocked={isLocked}
@@ -243,8 +253,11 @@ export const Receipt = ({
           handleEndDateChange={handleEndDateChange}
           handlePeriodChange={handlePeriodChange}
           handleSalaryChange={handleSalaryChange}
+          handleProportionalValueChange={handleProportionalNetValueChange}
           handleProportionalOneThirdChange={handleProportionalOneThirdChange}
-          handleProportionalNetValueChange={handleProportionalNetValueChange}
+          handleProportionalNetValueChange={
+            handleProportionalVacationNetValueChange
+          }
           handleLockClick={handleLockClick}
         />
       )
