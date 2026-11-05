@@ -62,3 +62,7 @@ O `.env` precisa existir antes do build, pois o Vite embute as variáveis no bun
 ```sh
 pnpm services:up
 ```
+
+## Licença
+
+[MIT](./LICENSE) © João Vitor
