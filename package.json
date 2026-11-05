@@ -1,8 +1,8 @@
 {
-  "name": "vite-boilerplate",
+  "name": "gerador-de-recibos",
   "version": "1.0.0",
-  "description": "Boilerplate para projetos React utilizando o Vite",
-  "repository": "https://github.com/diasjoaovitor/next-boilerplate.git",
+  "description": "Aplicação para gerar recibos simplificados de salário, férias e décimo terceiro",
+  "repository": "https://github.com/supermercado-baratao/gerador-de-recibos.git",
   "author": "João Vitor <jvitordiass@outlook.com.br>",
   "license": "MIT",
   "type": "module",
