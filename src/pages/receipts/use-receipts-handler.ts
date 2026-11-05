@@ -13,9 +13,11 @@ export const ALL_EMPLOYEES = ''
 export const useReceiptsHandler = () => {
   const receipts = useAppStore((state) => state.receipts)
   const employees = useAppStore((state) => state.employees)
+  const deleteReceipt = useAppStore((state) => state.deleteReceipt)
   const { alert } = useAlertStore()
 
   const [employeeFilter, setEmployeeFilter] = useState(ALL_EMPLOYEES)
+  const [receiptToDelete, setReceiptToDelete] = useState<TReceipt | null>(null)
 
   const filteredReceipts = sortByNewest(
     employeeFilter === ALL_EMPLOYEES
@@ -42,12 +44,26 @@ export const useReceiptsHandler = () => {
     }
   }
 
+  const handleDeleteClick = (receipt: TReceipt) => setReceiptToDelete(receipt)
+
+  const handleDeleteDialogClose = () => setReceiptToDelete(null)
+
+  const handleDeleteDialogConfirm = () => {
+    if (!receiptToDelete) return
+    deleteReceipt(receiptToDelete.id)
+    setReceiptToDelete(null)
+  }
+
   return {
     filteredReceipts,
     hasReceipts: receipts.length > 0,
     employeeFilter,
     employeeItems,
     handleEmployeeFilterChange,
-    handleOpenClick
+    handleOpenClick,
+    receiptToDelete,
+    handleDeleteClick,
+    handleDeleteDialogClose,
+    handleDeleteDialogConfirm
   }
 }

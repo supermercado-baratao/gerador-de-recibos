@@ -15,7 +15,7 @@ export const useAppHandler = () => {
   const { updateCompany } = useCompanyMutation()
   const { createEmployee, updateEmployee, deleteEmployee } =
     useEmployeeMutation()
-  const { createReceipt } = useReceiptMutation()
+  const { createReceipt, deleteReceipt } = useReceiptMutation()
 
   const isFetching = useIsFetching({
     predicate: ({ queryKey }) => queryKey[0] !== 'getSalaries'
@@ -38,14 +38,16 @@ export const useAppHandler = () => {
       createEmployee,
       updateEmployee,
       deleteEmployee,
-      createReceipt
+      createReceipt,
+      deleteReceipt
     })
   }, [
     updateCompany,
     createEmployee,
     updateEmployee,
     deleteEmployee,
-    createReceipt
+    createReceipt,
+    deleteReceipt
   ])
 
   return { isLoading }

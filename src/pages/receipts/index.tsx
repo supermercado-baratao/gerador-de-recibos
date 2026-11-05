@@ -1,4 +1,4 @@
-import { PictureAsPdf } from '@mui/icons-material'
+import { Delete, PictureAsPdf } from '@mui/icons-material'
 import {
   Box,
   FormControl,
@@ -15,7 +15,7 @@ import {
   Typography
 } from '@mui/material'
 
-import { Select } from '@/components'
+import { DeleteDialog, Select } from '@/components'
 import * as GS from '@/styles'
 import { formatCurrency, formatDate } from '@/utils'
 
@@ -30,7 +30,11 @@ export const Receipts = () => {
     employeeFilter,
     employeeItems,
     handleEmployeeFilterChange,
-    handleOpenClick
+    handleOpenClick,
+    receiptToDelete,
+    handleDeleteClick,
+    handleDeleteDialogClose,
+    handleDeleteDialogConfirm
   } = useReceiptsHandler()
 
   return (
@@ -94,12 +98,32 @@ export const Receipts = () => {
                           <PictureAsPdf />
                         </IconButton>
                       </Tooltip>
+                      <Tooltip title="Excluir recibo">
+                        <IconButton
+                          aria-label="Excluir recibo"
+                          color="error"
+                          onClick={() => handleDeleteClick(receipt)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
+          <DeleteDialog
+            open={!!receiptToDelete}
+            title="Excluir recibo"
+            item={
+              receiptToDelete
+                ? `${receiptToDelete.title} de ${receiptToDelete.employee.name}`
+                : ''
+            }
+            handleClose={handleDeleteDialogClose}
+            handleConfirm={handleDeleteDialogConfirm}
+          />
         </>
       )}
     </Box>

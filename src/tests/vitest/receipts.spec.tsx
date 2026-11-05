@@ -187,6 +187,91 @@ describe('Recibos', () => {
     expect(within(table).getByText(maria.name)).toBeInTheDocument()
   })
 
+  test('exclui o recibo após confirmação', async () => {
+    createUser()
+    populateDatabase()
+    seedCollection('receipts', [
+      makeSalaryReceipt(maria, {
+        id: 'receipt-maria',
+        salary: 1518,
+        date: '2025-05-05'
+      }),
+      makeSalaryReceipt(joao, {
+        id: 'receipt-joao',
+        salary: 1621,
+        date: '2026-03-05'
+      })
+    ])
+    const user = userEvent.setup()
+    renderApp('/receipts')
+
+    const table = await screen.findByRole('table')
+    const mariaRow = within(table).getByText(maria.name).closest('tr')!
+
+    await user.click(
+      within(mariaRow).getByRole('button', { name: 'Excluir recibo' })
+    )
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog).toHaveTextContent(maria.name)
+
+    await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+    expect(getSeededCollection('receipts')).toHaveLength(2)
+
+    await user.click(
+      within(mariaRow).getByRole('button', { name: 'Excluir recibo' })
+    )
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Excluir'
+      })
+    )
+
+    expect(
+      await screen.findByText('Recibo excluído com sucesso!')
+    ).toBeInTheDocument()
+    expect(getSeededCollection('receipts')).toEqual([
+      expect.objectContaining({ id: 'receipt-joao' })
+    ])
+    await waitFor(() => {
+      expect(within(table).queryByText(maria.name)).not.toBeInTheDocument()
+    })
+    expect(within(table).getByText(joao.name)).toBeInTheDocument()
+  })
+
+  test('avisa quando o recibo não pôde ser excluído', async () => {
+    createUser()
+    populateDatabase()
+    seedCollection('receipts', [
+      makeSalaryReceipt(maria, {
+        id: 'receipt-maria',
+        salary: 1518,
+        date: '2025-05-05'
+      })
+    ])
+    databaseMock.deleteUniqueById.mockRejectedValueOnce(new Error('offline'))
+    const user = userEvent.setup()
+    renderApp('/receipts')
+
+    const table = await screen.findByRole('table')
+    await user.click(
+      within(table).getByRole('button', { name: 'Excluir recibo' })
+    )
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Excluir'
+      })
+    )
+
+    expect(
+      await screen.findByText('Erro ao excluir recibo')
+    ).toBeInTheDocument()
+    expect(within(table).getByText(maria.name)).toBeInTheDocument()
+    expect(getSeededCollection('receipts')).toHaveLength(1)
+  })
+
   test('mostra mensagem quando ainda não há recibos', async () => {
     createUser()
     populateDatabase()

@@ -11,4 +11,7 @@ const create = (data: TCreateData<TReceipt>): Promise<TReceipt> =>
 const findMany = (): Promise<TReceipt[]> =>
   database.findMany<TReceipt>({ path: getUserPath(PATH) })
 
-export const receiptModel = { create, findMany }
+const deleteUniqueById = (id: string): Promise<string> =>
+  database.deleteUniqueById({ path: getUserPath(PATH), id })
+
+export const receiptModel = { create, findMany, deleteUniqueById }

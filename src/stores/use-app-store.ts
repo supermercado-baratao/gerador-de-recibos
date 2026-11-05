@@ -27,6 +27,7 @@ type TAppStore = TAppData & {
   deleteEmployee: (id: string) => void
 
   createReceipt: (receipt: TCreateData<TReceipt>) => void
+  deleteReceipt: (id: string) => void
 
   employeeId: string | null
   setEmployeeId: (id: string | null) => void
@@ -52,6 +53,7 @@ export const useAppStore = create<TAppStore>((set) => ({
   deleteEmployee: () => {},
 
   createReceipt: () => {},
+  deleteReceipt: () => {},
 
   setEmployeeId: (id) => set({ employeeId: id })
 }))
