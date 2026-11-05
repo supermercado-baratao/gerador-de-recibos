@@ -19,7 +19,7 @@ Aplicação para gerar recibos simplificados de salário, férias e décimo terc
 ## Como rodar o projeto
 
 ```sh
-git clone https://github.com/diasjoaovitor/gerador-de-recibos
+git clone https://github.com/supermercado-baratao/gerador-de-recibos
 cd gerador-de-recibos
 pnpm install
 cp .env.example .env # preencha com as credenciais do Firebase
