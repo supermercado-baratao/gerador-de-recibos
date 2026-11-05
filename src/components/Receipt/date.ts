@@ -16,14 +16,21 @@ export const getYearMonth = (date: string) => dayjs(date).format('YYYY-MM')
 export const getEndDate = (date: string) =>
   dayjs(date).add(30, 'days').format('YYYY-MM-DD')
 
-export const getNumberOfMonths = (date: string, endDate: string) => {
-  const start = dayjs(date)
-  const end = dayjs(endDate)
-  const numberOfMonths = end.diff(start, 'month')
-  return numberOfMonths === 0 ? 1 : numberOfMonths + 1
-}
+const DAYS_IN_MONTH = 30
+
+const getNumberOfDays = (date: string, endDate: string) =>
+  dayjs(endDate).diff(dayjs(date), 'day')
+
+export const getNumberOfMonths = (date: string, endDate: string) =>
+  getNumberOfDays(date, endDate) / DAYS_IN_MONTH
+
+const pluralize = (value: number, singular: string, plural: string) =>
+  `${value} ${value === 1 ? singular : plural}`
 
 export const getPeriod = (date: string, endDate: string) => {
-  const numberOfMonths = getNumberOfMonths(date, endDate)
-  return numberOfMonths === 1 ? '1 mês' : `${numberOfMonths} meses`
+  const days = getNumberOfDays(date, endDate)
+  if (days > 0 && days % DAYS_IN_MONTH === 0) {
+    return pluralize(days / DAYS_IN_MONTH, 'mês', 'meses')
+  }
+  return pluralize(days, 'dia', 'dias')
 }
