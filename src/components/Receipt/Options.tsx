@@ -51,7 +51,7 @@ export const SalaryOrThirteenth = ({
   handleSalaryChange,
   handleLockClick
 }: TBasicOptionProps) => (
-  <FormControl fullWidth sx={{ mb: 2 }}>
+  <FormControl fullWidth sx={S.Wrapper}>
     <InputDate label="Data" value={date} onChange={handleDateChange} />
     <InputCurrency
       label="Salário"

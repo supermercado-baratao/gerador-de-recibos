@@ -10,7 +10,7 @@ export const Fieldset: SxProps<Theme> = {
 }
 
 export const Form: SxProps<Theme> = {
-  '.MuiTextField-root': {
+  '.MuiTextField-root, .MuiPickersTextField-root': {
     mb: 2
   }
 }
